@@ -9,6 +9,9 @@
 
 #include "scout_base/scout_base_ros.hpp"
 
+#include <chrono>
+#include <thread>
+
 #include "scout_base/scout_messenger.hpp"
 #include "ugv_sdk/utilities/protocol_detector.hpp"
 
@@ -151,11 +154,12 @@ void ScoutBaseRos::Run() {
     // publish robot state at 50Hz while listening to twist commands
     messenger->SetupSubscription();
     keep_running_ = true;
-    rclcpp::Rate rate(50);
+    const auto period = std::chrono::milliseconds(20);  // 50Hz
     while (keep_running_) {
+      auto loop_start = std::chrono::steady_clock::now();
       messenger->PublishStateToROS();
       rclcpp::spin_some(shared_from_this());
-      rate.sleep();
+      std::this_thread::sleep_until(loop_start + period);
     }
   } else {
     std::unique_ptr<ScoutMessenger<ScoutMiniOmniRobot>> messenger =
@@ -184,12 +188,13 @@ void ScoutBaseRos::Run() {
 
     // publish robot state at 50Hz while listening to twist commands
     messenger->SetupSubscription();
-    rclcpp::Rate rate(50);
     keep_running_ = true;
+    const auto period_omni = std::chrono::milliseconds(20);  // 50Hz
     while (keep_running_) {
+      auto loop_start = std::chrono::steady_clock::now();
       messenger->PublishStateToROS();
       rclcpp::spin_some(shared_from_this());
-      rate.sleep();
+      std::this_thread::sleep_until(loop_start + period_omni);
     }
   }
 }

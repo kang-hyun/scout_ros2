@@ -157,8 +157,8 @@ class ScoutMessenger {
   double position_y_ = 0.0;
   double theta_ = 0.0;
 
-  rclcpp::Time last_time_;
-  rclcpp::Time current_time_;
+  rclcpp::Time last_time_{0, 0, RCL_ROS_TIME};
+  rclcpp::Time current_time_{0, 0, RCL_ROS_TIME};
 
   void TwistCmdCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
     if (!simulated_robot_) {
